@@ -60,7 +60,6 @@ void ModelHandlerControllerTask(void *pdata)
     void *MsgRecv;
     SensorEvent_t Event;
     struct Msg_t RecvFromCtrMsg;
-    struct Msg_t Send2ViewMsg;
 
     while(1)
     {
@@ -73,24 +72,12 @@ void ModelHandlerControllerTask(void *pdata)
             goto ErrorHandler;
         }
 
-        //2.开始处理Controller请求，如果类型不一致，则给Iot回复Unknow Type，类似弹窗
-        memset(&Send2ViewMsg, 0, sizeof(struct Msg_t));
+        //2.开始处理Controller请求，获取控制类型
         memset(&RecvFromCtrMsg, 0, sizeof(struct Msg_t));
         memcpy(&RecvFromCtrMsg, MsgRecv, sizeof(struct Msg_t));
         printf("MsgRecv->Type:%d\n", RecvFromCtrMsg.Type);
 
-        if(RecvFromCtrMsg.Type != START   && RecvFromCtrMsg.Type != STOP   &&  \
-                RecvFromCtrMsg.Type != NEXT && RecvFromCtrMsg.Type != PREV)
-        {
-            printf("RecvFromCtrMsg.Type Unknow!!!\n");
-            Send2ViewMsg.Type = 255;
-            snprintf(Send2ViewMsg.Data, sizeof(Send2ViewMsg.Data), "Unknow Type");
-            tos_msg_q_post(&Model2View, (void *) &Send2ViewMsg);
-            osDelay(10);
-            continue;
-        }
-
-        //3.类型正确，将消息类型转换为事件，通过事件让传感器状态改变
+        //3.通过控制类型让传感器状态改变
         Event = (SensorEvent_t)RecvFromCtrMsg.Type;
         DoSensorStatus(Event);
         

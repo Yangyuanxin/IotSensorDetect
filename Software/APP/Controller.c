@@ -120,6 +120,7 @@ void ControllerTask(void *pdata)
     int error;
     char  host_ip[20];
     mqtt_message_t msg;
+    //struct Msg_t Send2ViewMsg;
     struct Msg_t Send2ModelMsg;
     k_event_flag_t match_flag;
 
@@ -173,6 +174,10 @@ void ControllerTask(void *pdata)
         {           
             Send2ModelMsg.Type = 3;
             tos_msg_q_post(&Controller2Model, (void *) &Send2ModelMsg);
+        }
+        else
+        {
+            printf("Unknow Type!!!\n");
         }
 
         osDelay(500);
